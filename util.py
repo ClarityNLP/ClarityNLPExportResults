@@ -23,6 +23,9 @@ def read_property(env_name, config_tuple):
 # Getting the OHDSI DB type
 ohdsi_db_type = read_property('OHDSI_DATABASE_TYPE', ('ohdsi', 'dbtype'))
 
+# Getting the PHDSI DB schema
+ohdsi_schema = read_property('OHDSI_SCHEMA', ('ohdsi', 'schema'))
+
 # Getting the OHDSI DB credentials
 ohdsi_conn_string = "host='%s' dbname='%s' user='%s' password='%s' port=%s" % (read_property('OHDSI_HOSTNAME', ('ohdsi', 'host')),
                                                                          read_property('OHDSI_DATABASE', ('ohdsi', 'dbname')),
