@@ -10,6 +10,7 @@ import util
 from pymongo import MongoClient
 import pymysql
 from datetime import datetime
+from flask import Response
 
 
 """
@@ -25,13 +26,12 @@ class ExportOhdsi:
 
         # No results matching criteria
         if results.count() == 0:
-            return JSON.dumps({"status":200, "message":"No results matching the given job id and result name."})
+            return Response('{"message":"No results matching the given job id and result name."}', status=200, mimetype='application/json')
 
         # Write results to the OMOP
-        responseMsg = self.writeResults(results, omop_domain, concept_id)
+        response = self.writeResults(results, omop_domain, concept_id)
 
-
-        pass
+        return response
 
     """
     Function to read the results based on input parameters from Mongo
@@ -50,24 +50,29 @@ class ExportOhdsi:
         # Connecting to OMOP database
         conn = self.connectToOMOP()
         if conn is None:
-            return JSON.dumps({"status":404, "message":"Can not connect to OMOP database"})
+            return Response('{"message":"Can not connect to OMOP database"}', status=404, mimetype='application/json')
         cursor = conn.cursor()
 
         # Getting the primary key for the new entries
         primary_key = self.getPrimaryKey(cursor, omop_domain)
         print ("Primary Key = " + str(primary_key))
         if primary_key is None:
-            return JSON.dumps({"status":500, "message":"Can't read data from OMOP database"})
+            return Response('{"message":"Cant read data from OMOP database"}', status=500, mimetype='application/json')
 
         # Writing results to the database
-        response = self.write2DB(cursor, omop_domain, concept_id, results, primary_key)
+        self.write2DB(cursor, omop_domain, concept_id, results, primary_key)
 
         # Committing changes to DB
-        conn.commit()
-        conn.close()
-        return
+        try:
+            conn.commit()
+        except:
+            return Response('{"message":"Cant write data to OMOP database"}', status=500, mimetype='application/json')
 
-        pass
+        conn.close()
+
+        return Response('{"message":"Successfully exported results"}', status=200, mimetype='application/json')
+
+
 
     """
     Function to connect to the OMOP Database
@@ -115,6 +120,5 @@ class ExportOhdsi:
                 report_date = datetime.strptime(entry['report_date'][0:entry['report_date'].find('T')], '%Y-%m-%d')
                 query = "INSERT INTO " + util.ohdsi_schema + ".measurement(measurement_id, person_id, measurement_concept_id, measurement_date, measurement_type_concept_id, value_as_number) VALUES (%s, %s, %s, %s, %s, %s)"
                 cursor.execute(query, (primary_key, entry['subject'], concept_id, report_date, domain_map[omop_domain], entry['value']))
-            break
 
-        return ""
+            break # TODO: remove this break

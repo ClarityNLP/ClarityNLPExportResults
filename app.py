@@ -12,8 +12,8 @@ def hello():
 @app.route("/export_ohdsi")
 def export_ohdsi():
     e = ohdsi.ExportOhdsi()
-    e.exportResults(10000,"Temperature",'Measurement',3020891)
-    return ""
+    response = e.exportResults(10000,"Temperature",'Measurement',3020891)
+    return response
 
 
 
