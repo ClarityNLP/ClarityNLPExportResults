@@ -26,7 +26,7 @@ class ExportOhdsi:
 
         # No results matching criteria
         if results.count() == 0:
-            return Response('{"message":"No results matching the given job id and result name."}', status=200, mimetype='application/json')
+            return Response('No results matching the given job id and result name.', status=400, mimetype='application/json')
 
         # Write results to the OMOP
         response = self.writeResults(results, omop_domain, concept_id)
@@ -50,14 +50,14 @@ class ExportOhdsi:
         # Connecting to OMOP database
         conn = self.connectToOMOP()
         if conn is None:
-            return Response('{"message":"Can not connect to OMOP database"}', status=404, mimetype='application/json')
+            return Response('Can not connect to OMOP database', status=404, mimetype='application/json')
         cursor = conn.cursor()
 
         # Getting the primary key for the new entries
         primary_key = self.getPrimaryKey(cursor, omop_domain)
         print ("Primary Key = " + str(primary_key))
         if primary_key is None:
-            return Response('{"message":"Cant read data from OMOP database"}', status=500, mimetype='application/json')
+            return Response('Cant read data from OMOP database', status=500, mimetype='application/json')
 
         # Writing results to the database
         self.write2DB(cursor, omop_domain, concept_id, results, primary_key)
@@ -66,12 +66,12 @@ class ExportOhdsi:
         try:
             conn.commit()
         except:
-            return Response('{"message":"Cant write data to OMOP database"}', status=500, mimetype='application/json')
+            return Response('Cant write data to OMOP database', status=500, mimetype='application/json')
             self.deleteExportedResults(cursor, conn, primary_key, omop_domain)
 
         conn.close()
 
-        return Response('{"message":"Successfully exported results"}', status=200, mimetype='application/json')
+        return Response('Successfully exported results', status=200, mimetype='application/json')
 
 
 

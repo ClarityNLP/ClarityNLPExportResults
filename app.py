@@ -13,12 +13,17 @@ def hello():
 def export_ohdsi():
     if request.method == 'POST':
         r = request.get_json()
+        print(r)
+        if (r['job_id'] is None or len(r['result_name'])==0 or len(r['omop_domain'])==0 or len(r['concept_id'])==0):
+            return Response('Bad Request. Missing fields.', status=400, mimetype='application/json')
+
         e = ohdsi.ExportOhdsi()
         response = e.exportResults(r['job_id'], r['result_name'], r['omop_domain'], r['concept_id'])
+
         #response = e.exportResults(10000,"Temperature",'Measurement',3020891)
         return response
     else:
-        return Response('{"message":"This API supports only POST requests"}', status=400, mimetype='application/json')
+        return Response('This API supports only POST requests', status=400, mimetype='application/json')
 
 
 
