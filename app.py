@@ -9,7 +9,7 @@ def hello():
     return "Welcome to ClarityNLP Export Results Module"
 
 
-@app.route("/export_ohdsi", methods=['POST'])
+@app.route("/export_ohdsi", methods=['POST', 'GET'])
 def export_ohdsi():
     if request.method == 'POST':
         r = request.get_json()
@@ -22,8 +22,10 @@ def export_ohdsi():
 
         #response = e.exportResults(10000,"Temperature",'Measurement',3020891)
         return response
+    elif request.method == 'GET':
+        return Response('API is healthy', status=200, mimetype='application/json')
     else:
-        return Response('This API supports only POST requests', status=400, mimetype='application/json')
+        return Response('This API supports only POST & GET requests', status=400, mimetype='application/json')
 
 
 
