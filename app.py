@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify, Response
+from flask_cors import CORS
 import util
 import ohdsi
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/")
 def hello():
