@@ -4,7 +4,7 @@ import util
 import ohdsi
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route("/")
 def hello():
